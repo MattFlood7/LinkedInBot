@@ -133,9 +133,6 @@ def LinkedInBot(browser):
 
         while profilesQueued:
 
-            # Sleep a random time between profile views to throw off LinkedIn's security tracking.
-            time.sleep(random.randrange(25, 300))
-
             shuffle(profilesQueued)
             profileID = profilesQueued.pop()
             browser.get('https://www.linkedin.com'+profileID)
