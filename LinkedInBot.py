@@ -52,11 +52,11 @@ def StartBrowser(browserChoice):
         print '\nLaunching Chrome'
         browser = webdriver.Chrome()
 
-    if browserChoice == 2:
+    elif browserChoice == 2:
         print '\nLaunching Firefox/Iceweasel'
         browser = webdriver.Firefox()
 
-    if browserChoice == 3:
+    elif browserChoice == 3:
         print '\nLaunching PhantomJS'
         browser = webdriver.PhantomJS()
 
@@ -76,7 +76,7 @@ def StartBrowser(browserChoice):
     print 'Signing in...'
     time.sleep(3)
 
-    soup = BeautifulSoup(browser.page_source)
+    soup = BeautifulSoup(browser.page_source, "lxml")
     if soup.find('div', {'class':'alert error'}):
         print 'Error! Please verify your username and password.'
         browser.quit()
@@ -118,13 +118,13 @@ def LinkedInBot(browser):
                 visitedUsersFile.write(str(profileID)+'\r\n')
             visitedUsersFile.close()
 
-            if GetNewProfileURLS(BeautifulSoup(browser.page_source), profilesQueued):
+            if GetNewProfileURLS(BeautifulSoup(browser.page_source, "lxml"), profilesQueued):
                 break
             else:
                 print '|',
                 time.sleep(random.uniform(5, 7))
 
-        soup = BeautifulSoup(browser.page_source)
+        soup = BeautifulSoup(browser.page_source, "lxml")
         profilesQueued = list(set(GetNewProfileURLS(soup, profilesQueued)))
 
         V += 1
@@ -132,9 +132,6 @@ def LinkedInBot(browser):
         print browser.title.replace(' | LinkedIn', ''), ' visited. T:', T, '| V:', V, '| Q:', len(profilesQueued)
 
         while profilesQueued:
-
-            # Sleep a random time between profile views to throw off LinkedIn's security tracking.
-            time.sleep(random.randrange(25, 300))
 
             shuffle(profilesQueued)
             profileID = profilesQueued.pop()
@@ -147,7 +144,7 @@ def LinkedInBot(browser):
 
             # Get new profiles ID
             time.sleep(10)
-            soup = BeautifulSoup(browser.page_source)
+            soup = BeautifulSoup(browser.page_source, "lxml")
             profilesQueued.extend(GetNewProfileURLS(soup, profilesQueued))
             profilesQueued = list(set(profilesQueued))
 
@@ -200,10 +197,9 @@ def GetNewProfileURLS(soup, profilesQueued):
     # Get profiles from the "People Also Viewed" section
     profileURLS = []
 
-    # TODO: This is pretty bad looking. Fix this up at some point to look cleaner.
     try:
         for a in soup.find_all('a', class_='mn-person-info__picture'):
-            if a['href'] not in profileURLS and a['href'] not in profilesQueued and "/in/" in a['href'] and "connections" not in a['href'] and "skills" not in a['href']:
+            if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
                 print a['href']
                 profileURLS.append(a['href'])
 
@@ -212,7 +208,7 @@ def GetNewProfileURLS(soup, profilesQueued):
 
     try:
         for a in soup.find_all('a', class_='pv-browsemap-section__member'):
-            if a['href'] not in profileURLS and a['href'] not in profilesQueued and "/in/" in a['href'] and "connections" not in a['href'] and "skills" not in a['href']:
+            if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
                 print a['href']
                 profileURLS.append(a['href'])
 
@@ -223,7 +219,7 @@ def GetNewProfileURLS(soup, profilesQueued):
         for ul in soup.find_all('ul', class_='pv-profile-section__section-info'):
             for li in ul.find_all('li'):
                 a = li.find('a')
-                if a['href'] not in profileURLS and a['href'] not in profilesQueued and "/in/" in a['href'] and "connections" not in a['href'] and "skills" not in a['href']:
+                if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
                     print a['href']
                     profileURLS.append(a['href'])
     except:
@@ -232,6 +228,19 @@ def GetNewProfileURLS(soup, profilesQueued):
     profileURLS = list(set(profileURLS))
     return profileURLS
 
+
+def ValidateURL(url, profileURLS, profilesQueued, visitedUsers):
+
+    """
+    Validate the url passed meets requirement to be navigated to.
+    profileURLS: list of urls already added within the GetNewProfileURLS method to be returned.
+        Want to make sure we are not adding duplicates.
+    profilesQueued: list of urls already added and being looped. Want to make sure we are not
+        adding duplicates.
+    visitedUsers: users already visited. Don't want to be creepy and visit them multiple days in a row.
+    """
+
+    return url not in profileURLS and url not in profilesQueued and "/in/" in url and "connections" not in url and "skills" not in url and url not in visitedUsers
 
 if __name__ == '__main__':
     Launch()
