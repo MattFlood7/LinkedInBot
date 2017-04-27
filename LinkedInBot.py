@@ -6,16 +6,17 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from random import shuffle
 
-def Launch():
+# Configurable Constants
+EMAIL = 'youremail@gmail.com'
+PASSWORD = 'password'
+CONNECT_WITH_USERS = True
+JOBS_TO_CONNECT_WITH = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
+VERBOSE = True
 
+def Launch():
     """
     Launch the LinkedIn bot.
     """
-
-    # Check if the file 'config' exists, otherwise quit
-    if os.path.isfile('config') == False:
-        print 'Error! No configuration file.'
-        sys.exit()
 
     # Check if the file 'visitedUsers.txt' exists, otherwise create it
     if os.path.isfile('visitedUsers.txt') == False:
@@ -42,7 +43,6 @@ def Launch():
     StartBrowser(browserChoice)
 
 def StartBrowser(browserChoice):
-
     """
     Launch broswer based on the user's selected choice.
     browserChoice: the browser selected by the user.
@@ -60,17 +60,12 @@ def StartBrowser(browserChoice):
         print '\nLaunching PhantomJS'
         browser = webdriver.PhantomJS()
 
-    # Open, load and close the 'config' file
-    with open('config', 'r') as configFile:
-        config = [line.strip() for line in configFile]
-    configFile.close()
-
     # Sign in
     browser.get('https://linkedin.com/uas/login')
     emailElement = browser.find_element_by_id('session_key-login')
-    emailElement.send_keys(config[0])
+    emailElement.send_keys(EMAIL)
     passElement = browser.find_element_by_id('session_password-login')
-    passElement.send_keys(config[1])
+    passElement.send_keys(PASSWORD)
     passElement.submit()
 
     print 'Signing in...'
@@ -89,7 +84,6 @@ def StartBrowser(browserChoice):
 
 
 def LinkedInBot(browser):
-
     """
     Run the LinkedIn Bot.
     browser: the selenium driver to run the bot with.
@@ -137,6 +131,10 @@ def LinkedInBot(browser):
             profileID = profilesQueued.pop()
             browser.get('https://www.linkedin.com'+profileID)
 
+            # Connect with users if the flag is turned on and matches your criteria
+            if CONNECT_WITH_USERS:
+                ConnectWithUser(browser)
+
             # Add the ID to the visitedUsersFile
             with open('visitedUsers.txt', 'ab') as visitedUsersFile:
                 visitedUsersFile.write(str(profileID)+'\r\n')
@@ -181,6 +179,35 @@ def LinkedInBot(browser):
         print '\nNo more profiles to visit. Everything restarts with the network page...\n'
 
 
+def ConnectWithUser(browser):
+    """
+    Connect with the user viewing if their job title is found in your list of roles
+    you want to connect with.
+    browse: the selenium browser used to interact with the page.
+    """
+
+    soup = BeautifulSoup(browser.page_source, "lxml")
+    jobTitleMatches = False
+
+    # I know not that efficient of a loop but BeautifulSoup and Selenium are
+    # giving me a hard time finding the specifc h2 element that contain's user's job title
+    for h2 in soup.find_all('h2'):
+        for job in JOBS_TO_CONNECT_WITH:
+            if job in h2.getText():
+                jobTitleMatches = True
+                break
+
+    if jobTitleMatches:
+        try:
+            if VERBOSE:
+                print 'Sending the user an invitation to connect.'
+            browser.find_element_by_xpath('//button[@class="connect primary top-card-action ember-view"]').click()
+            browser.find_element_by_xpath('//button[@class="button-primary-large ml3"]').click()
+        except:
+            print 'Could not connect with the user due to an exception thrown.'
+            pass
+
+
 def GetNewProfileURLS(soup, profilesQueued):
 
     """
@@ -200,7 +227,8 @@ def GetNewProfileURLS(soup, profilesQueued):
     try:
         for a in soup.find_all('a', class_='mn-person-info__picture'):
             if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
-                print a['href']
+                if VERBOSE:
+                    print a['href']
                 profileURLS.append(a['href'])
 
     except:
@@ -209,7 +237,8 @@ def GetNewProfileURLS(soup, profilesQueued):
     try:
         for a in soup.find_all('a', class_='pv-browsemap-section__member'):
             if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
-                print a['href']
+                if VERBOSE:
+                    print a['href']
                 profileURLS.append(a['href'])
 
     except:
@@ -220,7 +249,8 @@ def GetNewProfileURLS(soup, profilesQueued):
             for li in ul.find_all('li'):
                 a = li.find('a')
                 if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
-                    print a['href']
+                    if VERBOSE:
+                        print a['href']
                     profileURLS.append(a['href'])
     except:
         pass
@@ -230,7 +260,6 @@ def GetNewProfileURLS(soup, profilesQueued):
 
 
 def ValidateURL(url, profileURLS, profilesQueued, visitedUsers):
-
     """
     Validate the url passed meets requirement to be navigated to.
     profileURLS: list of urls already added within the GetNewProfileURLS method to be returned.

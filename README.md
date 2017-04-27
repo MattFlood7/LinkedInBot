@@ -31,7 +31,16 @@ PhantomJS:
 If you want to built your own binaries, here is the [build instructions](http://phantomjs.org/build.html) for PhantomJS.
 
 ## Configuration
-Before you run the bot, edit the `config` file to add your account login informations (email and password). It's that simple!
+Before you run the bot, edit the configuration portion of the script. This will include your account login information (email, password, etc.) and other logical values to make the bot more of your own. It's that simple!
+
+```python
+# Configure constants here
+EMAIL = 'youremail@gmail.com'
+PASSWORD = 'password'
+CONNECT_WITH_USERS = True
+JOBS_TO_CONNECT_WITH = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
+VERBOSE = True
+```
 
 ## Run
 Once you have installed the required dependencies and edited the `config` file, you can run the bot.
@@ -49,6 +58,3 @@ T: Number of profiles the bot tried to access;
 V: Number of profiles the bot actually visited (profiles you can access: rank 3 or less);
 
 Q: Number of profiles in queue.
-
-## TODO
-Add configurable options to view/add people who have job titles that you provide. Ex ['Developer', 'CTO', 'CEO', etc..]
