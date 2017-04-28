@@ -14,7 +14,9 @@ SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
 CONNECT_WITH_USERS = True
 JOBS_TO_CONNECT_WITH = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
+ENDORSE_CONNECTIONS = False
 VERBOSE = True
+
 
 def Launch():
     """
@@ -97,6 +99,9 @@ def LinkedInBot(browser):
     profilesQueued = []
     error403Count = 0
     timer = time.time()
+
+    if ENDORSE_CONNECTIONS:
+        EndorseConnections(browser)
 
     print 'At the my network page to scrape user urls..\n'
 
@@ -215,7 +220,6 @@ def ConnectWithUser(browser):
             browser.find_element_by_xpath('//button[@class="connect primary top-card-action ember-view"]').click()
             browser.find_element_by_xpath('//button[@class="button-primary-large ml3"]').click()
         except:
-            print 'Could not connect with the user due to an exception thrown.'
             pass
 
 
@@ -315,9 +319,50 @@ def ValidateURL(url, profileURLS, profilesQueued, visitedUsers):
     return url not in profileURLS and url not in profilesQueued and "/in/" in url and "connections" not in url and "skills" not in url and url not in visitedUsers
 
 
+def EndorseConnections(browser):
+    """
+    Endorse skills for your connections found. This only likes the top three popular
+    skills the user has endorsed. If people want this feature can be further
+    expanded just post an enhancement request in the repository.
+    browser:
+    """
+
+    print "Gathering your connections url's to endorse their skills."
+    profileURLS = []
+    browser.get('https://www.linkedin.com/mynetwork/invite-connect/connections/')
+    time.sleep(3)
+
+    try:
+        for counter in range(1,NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE):
+            ScrollToBottomAndWaitForLoad(browser)
+
+        soup = BeautifulSoup(browser.page_source, "lxml")
+        for a in soup.find_all('a', class_='mn-person-info__picture'):
+            if VERBOSE:
+                print a['href']
+            profileURLS.append(a['href'])
+
+        print "Endorsing your connection's skills."
+
+        for url in profileURLS:
+            fullURL = 'https://www.linkedin.com'+url
+            if VERBOSE:
+                print 'Endorsing the connection '+fullURL
+
+            browser.get(fullURL)
+            time.sleep(3)
+            for button in browser.find_elements_by_xpath('//button[@data-control-name="endorse"]'):
+                button.click()
+    except:
+        print 'Exception occurred when endorsing your connections.'
+        pass
+
+    print ''
+
+
 def ScrollToBottomAndWaitForLoad(browser):
     """
-    Scroll to the bottom of the page and wait for the page to perform it's lazy laoding.
+    Scroll to the bottom of the page and wait for the page to perform it's lazy loading.
     browser: selenium webdriver used to interact with the browser.
     """
 

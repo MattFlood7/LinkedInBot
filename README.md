@@ -42,6 +42,7 @@ SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
 CONNECT_WITH_USERS = True
 JOBS_TO_CONNECT_WITH = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
+ENDORSE_CONNECTIONS = False
 VERBOSE = True
 ```
 
