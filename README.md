@@ -37,6 +37,9 @@ Before you run the bot, edit the configuration portion of the script. This will 
 # Configure constants here
 EMAIL = 'youremail@gmail.com'
 PASSWORD = 'password'
+VIEW_SPECIFIC_USERS = False
+SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
+NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
 CONNECT_WITH_USERS = True
 JOBS_TO_CONNECT_WITH = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 VERBOSE = True

@@ -9,6 +9,9 @@ from random import shuffle
 # Configurable Constants
 EMAIL = 'youremail@gmail.com'
 PASSWORD = 'password'
+VIEW_SPECIFIC_USERS = False
+SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
+NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
 CONNECT_WITH_USERS = True
 JOBS_TO_CONNECT_WITH = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 VERBOSE = True
@@ -103,14 +106,8 @@ def LinkedInBot(browser):
         # Generate random IDs
         while True:
 
-            profileID = str(random.randint(10000000, 99999999))
-            browser.get('https://www.linkedin.com/mynetwork/')
+            NavigateToMyNetworkPage(browser)
             T += 1
-
-            # Add the random ID to the visitedUsersFile
-            with open('visitedUsers.txt', 'ab') as visitedUsersFile:
-                visitedUsersFile.write(str(profileID)+'\r\n')
-            visitedUsersFile.close()
 
             if GetNewProfileURLS(BeautifulSoup(browser.page_source, "lxml"), profilesQueued):
                 break
@@ -179,6 +176,20 @@ def LinkedInBot(browser):
         print '\nNo more profiles to visit. Everything restarts with the network page...\n'
 
 
+def NavigateToMyNetworkPage(browser):
+    """
+    Navigate to the my network page and scroll to the bottom and let the lazy loading
+    go to be able to grab more potential users in your network. It is reccommended to
+    increase the NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE value if you are using the variable
+    SPECIFIC_USERS_TO_VIEW.
+    browser: the selenium browser used to interact with the page.
+    """
+
+    browser.get('https://www.linkedin.com/mynetwork/')
+    for counter in range(1,NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE):
+        ScrollToBottomAndWaitForLoad(browser)
+
+
 def ConnectWithUser(browser):
     """
     Connect with the user viewing if their job title is found in your list of roles
@@ -224,23 +235,44 @@ def GetNewProfileURLS(soup, profilesQueued):
     # Get profiles from the "People Also Viewed" section
     profileURLS = []
 
+    # TODO: This portion needs to be cleaned up. It's pretty ugly at the moment.
     try:
-        for a in soup.find_all('a', class_='mn-person-info__picture'):
+        for a in soup.find_all('a', class_='mn-person-info__link'):
             if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
-                if VERBOSE:
-                    print a['href']
-                profileURLS.append(a['href'])
 
+                if VIEW_SPECIFIC_USERS:
+                    for span in a.find_all('span', class_='mn-person-info__occupation'):
+                        for occupation in SPECIFIC_USERS_TO_VIEW:
+                            if occupation.lower() in span.text.lower():
+                                if VERBOSE:
+                                    print a['href']
+                                profileURLS.append(a['href'])
+                                break
+
+                else:
+                    if VERBOSE:
+                        print a['href']
+                    profileURLS.append(a['href'])
     except:
         pass
 
     try:
         for a in soup.find_all('a', class_='pv-browsemap-section__member'):
             if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
-                if VERBOSE:
-                    print a['href']
-                profileURLS.append(a['href'])
 
+                if VIEW_SPECIFIC_USERS:
+                    for div in a.find_all('div'):
+                        for occupation in SPECIFIC_USERS_TO_VIEW:
+                            if occupation.lower() in div.text.lower():
+                                if VERBOSE:
+                                    print a['href']
+                                profileURLS.append(a['href'])
+                                break
+
+                else:
+                    if VERBOSE:
+                        print a['href']
+                    profileURLS.append(a['href'])
     except:
         pass
 
@@ -249,9 +281,20 @@ def GetNewProfileURLS(soup, profilesQueued):
             for li in ul.find_all('li'):
                 a = li.find('a')
                 if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
-                    if VERBOSE:
-                        print a['href']
-                    profileURLS.append(a['href'])
+
+                    if VIEW_SPECIFIC_USERS:
+                        for div in a.find_all('div'):
+                            for occupatio in SPECIFIC_USERS_TO_VIEW:
+                                if occupation.lower() in div.text.lower():
+                                    if VERBOSE:
+                                        print a['href']
+                                    profileURLS.append(a['href'])
+                                    break
+
+                    else:
+                        if VERBOSE:
+                            print a['href']
+                        profileURLS.append(a['href'])
     except:
         pass
 
@@ -270,6 +313,17 @@ def ValidateURL(url, profileURLS, profilesQueued, visitedUsers):
     """
 
     return url not in profileURLS and url not in profilesQueued and "/in/" in url and "connections" not in url and "skills" not in url and url not in visitedUsers
+
+
+def ScrollToBottomAndWaitForLoad(browser):
+    """
+    Scroll to the bottom of the page and wait for the page to perform it's lazy laoding.
+    browser: selenium webdriver used to interact with the browser.
+    """
+
+    browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(4)
+
 
 if __name__ == '__main__':
     Launch()
