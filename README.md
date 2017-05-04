@@ -2,6 +2,9 @@
 Increase your likelihood to grow your connections and potentially get interview opportunities on LinkedIn by increasing visibility of your profile by viewing others profiles.
 ## About
 When you view user's profile in LinkedIn they get notified that you have looked at their profile. This bot will allow you to view user's profiles thus increasing your visibility in your suggested LinkedIn network.
+<p align="center">
+  <img src="https://preview.ibb.co/mMDuAk/linked_In_Bot_Profile_View_Results.png" alt="LinkedInBot Result" width="325" height="200">
+</p>
 
 ## Note
 This project is a modified and updated version of the awesome [helloitsim](https://github.com/helloitsim)'s [LInBot](https://github.com/helloitsim/LInBot) project. I found his repository and noticed it was outdated and needed some updating after LinkedIn had modified their site.
