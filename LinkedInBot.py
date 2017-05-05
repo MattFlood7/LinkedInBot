@@ -13,8 +13,10 @@ VIEW_SPECIFIC_USERS = False
 SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
 CONNECT_WITH_USERS = True
+RANDOMIZE_CONNECTING_WITH_USERS = True
 JOBS_TO_CONNECT_WITH = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 ENDORSE_CONNECTIONS = False
+RANDOMIZE_ENDORSING_CONNECTIONS = True
 VERBOSE = True
 
 
@@ -135,7 +137,10 @@ def LinkedInBot(browser):
 
             # Connect with users if the flag is turned on and matches your criteria
             if CONNECT_WITH_USERS:
-                ConnectWithUser(browser)
+                if not RANDOMIZE_CONNECTING_WITH_USERS:
+                    ConnectWithUser(browser)
+                elif random.choice([True, False]):
+                    ConnectWithUser(browser)
 
             # Add the ID to the visitedUsersFile
             with open('visitedUsers.txt', 'ab') as visitedUsersFile:
@@ -345,14 +350,20 @@ def EndorseConnections(browser):
         print "Endorsing your connection's skills."
 
         for url in profileURLS:
-            fullURL = 'https://www.linkedin.com'+url
-            if VERBOSE:
-                print 'Endorsing the connection '+fullURL
 
-            browser.get(fullURL)
-            time.sleep(3)
-            for button in browser.find_elements_by_xpath('//button[@data-control-name="endorse"]'):
-                button.click()
+            endorseConnection = True
+            if RANDOMIZE_ENDORSING_CONNECTIONS:
+                endorseConnection = random.choice([True, False])
+
+            if  endorseConnection:
+                fullURL = 'https://www.linkedin.com'+url
+                if VERBOSE:
+                    print 'Endorsing the connection '+fullURL
+
+                browser.get(fullURL)
+                time.sleep(3)
+                for button in browser.find_elements_by_xpath('//button[@data-control-name="endorse"]'):
+                    button.click()
     except:
         print 'Exception occurred when endorsing your connections.'
         pass

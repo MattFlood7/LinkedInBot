@@ -37,15 +37,17 @@ If you want to built your own binaries, here is the [build instructions](http://
 Before you run the bot, edit the configuration portion of the script. This will include your account login information (email, password, etc.) and other logical values to make the bot more of your own. It's that simple!
 
 ```python
-# Configure constants here
+# Configurable Constants
 EMAIL = 'youremail@gmail.com'
 PASSWORD = 'password'
 VIEW_SPECIFIC_USERS = False
 SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
 CONNECT_WITH_USERS = True
+RANDOMIZE_CONNECTING_WITH_USERS = True
 JOBS_TO_CONNECT_WITH = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 ENDORSE_CONNECTIONS = False
+RANDOMIZE_ENDORSING_CONNECTIONS = True
 VERBOSE = True
 ```
 
