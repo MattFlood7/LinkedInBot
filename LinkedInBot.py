@@ -229,7 +229,6 @@ def ConnectWithUser(browser):
 
 
 def GetNewProfileURLS(soup, profilesQueued):
-
     """
     Get new profile urls to add to the navigate queue.
     soup: beautiful soup instance of page's source code.
@@ -241,10 +240,26 @@ def GetNewProfileURLS(soup, profilesQueued):
         visitedUsers = [line.strip() for line in visitedUsersFile]
     visitedUsersFile.close()
 
-    # Get profiles from the "People Also Viewed" section
     profileURLS = []
+    profileURLS.extend(FindProfileURLsInNetworkPage(soup, profilesQueued, profileURLS, visitedUsers))
+    profileURLS.extend(FindProfileURLsInPeopleAlsoViewed(soup, profilesQueued, profileURLS, visitedUsers))
+    profileURLS.extend(FindProfileURLsInEither(soup, profilesQueued, profileURLS, visitedUsers))
 
-    # TODO: This portion needs to be cleaned up. It's pretty ugly at the moment.
+    profileURLS = list(set(profileURLS))
+    return profileURLS
+
+
+def FindProfileURLsInNetworkPage(soup, profilesQueued, profileURLS, visitedUsers):
+    """
+    Get new profile urls to add to the navigate queue from the my network page.
+    soup: beautiful soup instance of page's source code.
+    profileQueued: current list of profile queues.
+    profileURLS: profile urls already found this scrape.
+    visitedUsers: user's profiles that we have already viewed.
+    """
+
+    newProfileURLS = []
+
     try:
         for a in soup.find_all('a', class_='mn-person-info__link'):
             if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
@@ -255,15 +270,29 @@ def GetNewProfileURLS(soup, profilesQueued):
                             if occupation.lower() in span.text.lower():
                                 if VERBOSE:
                                     print a['href']
-                                profileURLS.append(a['href'])
+                                newProfileURLS.append(a['href'])
                                 break
 
                 else:
                     if VERBOSE:
                         print a['href']
-                    profileURLS.append(a['href'])
+                    newProfileURLS.append(a['href'])
     except:
         pass
+
+    return newProfileURLS
+
+
+def FindProfileURLsInPeopleAlsoViewed(soup, profilesQueued, profileURLS, visitedUsers):
+    """
+    Get new profile urls to add to the navigate queue from the people also viewed section.
+    soup: beautiful soup instance of page's source code.
+    profileQueued: current list of profile queues.
+    profileURLS: profile urls already found this scrape.
+    visitedUsers: user's profiles that we have already viewed.
+    """
+
+    newProfileURLS = []
 
     try:
         for a in soup.find_all('a', class_='pv-browsemap-section__member'):
@@ -275,15 +304,30 @@ def GetNewProfileURLS(soup, profilesQueued):
                             if occupation.lower() in div.text.lower():
                                 if VERBOSE:
                                     print a['href']
-                                profileURLS.append(a['href'])
+                                newProfileURLS.append(a['href'])
                                 break
 
                 else:
                     if VERBOSE:
                         print a['href']
-                    profileURLS.append(a['href'])
+                    newProfileURLS.append(a['href'])
     except:
         pass
+
+    return newProfileURLS
+
+
+def FindProfileURLsInEither(soup, profilesQueued, profileURLS, visitedUsers):
+    """
+    Get new profile urls to add to the navigate queue, some use different class
+    names in the my network page and people also viewed section.
+    soup: beautiful soup instance of page's source code.
+    profileQueued: current list of profile queues.
+    profileURLS: profile urls already found this scrape.
+    visitedUsers: user's profiles that we have already viewed.
+    """
+
+    newProfileURLS = []
 
     try:
         for ul in soup.find_all('ul', class_='pv-profile-section__section-info'):
@@ -307,8 +351,7 @@ def GetNewProfileURLS(soup, profilesQueued):
     except:
         pass
 
-    profileURLS = list(set(profileURLS))
-    return profileURLS
+    return newProfileURLS
 
 
 def ValidateURL(url, profileURLS, profilesQueued, visitedUsers):
