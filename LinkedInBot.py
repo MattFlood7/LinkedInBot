@@ -244,8 +244,8 @@ def GetNewProfileURLS(soup, profilesQueued):
     profileURLS.extend(FindProfileURLsInNetworkPage(soup, profilesQueued, profileURLS, visitedUsers))
     profileURLS.extend(FindProfileURLsInPeopleAlsoViewed(soup, profilesQueued, profileURLS, visitedUsers))
     profileURLS.extend(FindProfileURLsInEither(soup, profilesQueued, profileURLS, visitedUsers))
-
     profileURLS = list(set(profileURLS))
+    
     return profileURLS
 
 
