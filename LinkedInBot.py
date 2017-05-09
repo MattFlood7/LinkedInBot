@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# Author: Matt Flood
 
 import os, random, sys, time, urlparse
 from selenium import webdriver
@@ -245,7 +246,7 @@ def GetNewProfileURLS(soup, profilesQueued):
     profileURLS.extend(FindProfileURLsInPeopleAlsoViewed(soup, profilesQueued, profileURLS, visitedUsers))
     profileURLS.extend(FindProfileURLsInEither(soup, profilesQueued, profileURLS, visitedUsers))
     profileURLS = list(set(profileURLS))
-    
+
     return profileURLS
 
 
