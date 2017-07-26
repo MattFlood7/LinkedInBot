@@ -67,3 +67,6 @@ T: Number of profiles the bot tried to access;
 V: Number of profiles the bot actually visited (profiles you can access: rank 3 or less);
 
 Q: Number of profiles in queue.
+
+## Enhancements
+Please feel free to message me or open an issue if you have an idea for an enhancement! Seems like people are starting to use this and I would like to improve it.
