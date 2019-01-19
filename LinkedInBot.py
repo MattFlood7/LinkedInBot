@@ -70,9 +70,9 @@ def StartBrowser(browserChoice):
 
     # Sign in
     browser.get('https://linkedin.com/uas/login')
-    emailElement = browser.find_element_by_id('session_key-login')
+    emailElement = browser.find_element_by_id('username')
     emailElement.send_keys(EMAIL)
-    passElement = browser.find_element_by_id('session_password-login')
+    passElement = browser.find_element_by_id('password')
     passElement.send_keys(PASSWORD)
     passElement.submit()
 
