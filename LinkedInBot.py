@@ -7,9 +7,17 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from random import shuffle
 
+
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+
 # Configurable Constants
-EMAIL = 'youremail@gmail.com'
-PASSWORD = 'password'
+EMAIL = os.getenv("USERNAME",'')
+PASSWORD = os.getenv("PASSWORD",'')
 VIEW_SPECIFIC_USERS = False
 SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
