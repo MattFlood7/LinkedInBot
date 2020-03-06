@@ -231,8 +231,9 @@ def ConnectWithUser(browser):
         try:
             if VERBOSE:
                 print 'Sending the user an invitation to connect.'
-            browser.find_element_by_xpath('//button[@class="connect primary top-card-action ember-view"]').click()
-            browser.find_element_by_xpath('//button[@class="button-primary-large ml3"]').click()
+                browser.find_element_by_xpath('//button[@class="pv-s-profile-actions pv-s-profile-actions--connect ml2 artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]').click() #old class = connect primary top-card-action ember-view
+                time.sleep(random.randrange(3))
+                browser.find_element_by_xpath('//button[@class="ml1 artdeco-button artdeco-button--3 artdeco-button--primary ember-view"]').click()
         except:
             pass
 
@@ -270,11 +271,11 @@ def FindProfileURLsInNetworkPage(soup, profilesQueued, profileURLS, visitedUsers
     newProfileURLS = []
 
     try:
-        for a in soup.find_all('a', class_='mn-person-info__link'):
+        for a in soup.find_all('a', class_='discover-entity-type-card__link'):
             if ValidateURL(a['href'], profileURLS, profilesQueued, visitedUsers):
 
                 if VIEW_SPECIFIC_USERS:
-                    for span in a.find_all('span', class_='mn-person-info__occupation'):
+                    for span in a.find_all('span', class_='discover-person-card__occupation'):
                         for occupation in SPECIFIC_USERS_TO_VIEW:
                             if occupation.lower() in span.text.lower():
                                 if VERBOSE:
