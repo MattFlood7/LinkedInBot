@@ -49,7 +49,7 @@ def Launch():
 
     while True:
         try:
-            browserChoice = int(raw_input('Choice? '))
+            browserChoice = int(input('Choice? '))
         except ValueError:
             print('Invalid choice.'),
         else:
