@@ -5,6 +5,7 @@
 import os, random, sys, time
 from urllib.parse import urlparse
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 from random import shuffle
 
@@ -67,7 +68,7 @@ def StartBrowser(browserChoice):
 
     if browserChoice == 1:
         print('\nLaunching Chrome')
-        browser = webdriver.Chrome()
+        browser = webdriver.Chrome(ChromeDriverManager().install())
 
     elif browserChoice == 2:
         print('\nLaunching Firefox/Iceweasel')
