@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # Author: Matt Flood
 
-import os, random, sys, time, urlparse
+import os, random, sys, time
+from urllib.parse import urlparse
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from random import shuffle
