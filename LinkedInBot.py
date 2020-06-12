@@ -18,8 +18,8 @@ load_dotenv(dotenv_path)
 
 
 # Configurable Constants
-EMAIL = os.getenv("USERNAME",'')
-PASSWORD = os.getenv("PASSWORD",'')
+EMAIL = os.getenv("EMAIL", '')
+PASSWORD = os.getenv("PASSWORD", '')
 VIEW_SPECIFIC_USERS = False
 SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
