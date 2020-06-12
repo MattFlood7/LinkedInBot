@@ -154,7 +154,7 @@ def LinkedInBot(browser):
                     ConnectWithUser(browser)
 
             # Add the ID to the visitedUsersFile
-            with open('visitedUsers.txt', 'ab') as visitedUsersFile:
+            with open('visitedUsers.txt', 'a') as visitedUsersFile:
                 visitedUsersFile.write(str(profileID)+'\r\n')
             visitedUsersFile.close()
 
