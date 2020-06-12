@@ -89,7 +89,7 @@ def StartBrowser(browserChoice):
     print('Signing in...')
     time.sleep(3)
 
-    soup = BeautifulSoup(browser.page_source, "lxml")
+    soup = BeautifulSoup(browser.page_source, "html.parser")
     if soup.find('div', {'class':'alert error'}):
         print('Error! Please verify your username and password.')
         browser.quit()
@@ -127,13 +127,13 @@ def LinkedInBot(browser):
             NavigateToMyNetworkPage(browser)
             T += 1
 
-            if GetNewProfileURLS(BeautifulSoup(browser.page_source, "lxml"), profilesQueued):
+            if GetNewProfileURLS(BeautifulSoup(browser.page_source, "html.parser"), profilesQueued):
                 break
             else:
                 print('|'),
                 time.sleep(random.uniform(5, 7))
 
-        soup = BeautifulSoup(browser.page_source, "lxml")
+        soup = BeautifulSoup(browser.page_source, "html.parser")
         profilesQueued = list(set(GetNewProfileURLS(soup, profilesQueued)))
 
         V += 1
@@ -160,7 +160,7 @@ def LinkedInBot(browser):
 
             # Get new profiles ID
             time.sleep(10)
-            soup = BeautifulSoup(browser.page_source, "lxml")
+            soup = BeautifulSoup(browser.page_source, "html.parser")
             profilesQueued.extend(GetNewProfileURLS(soup, profilesQueued))
             profilesQueued = list(set(profilesQueued))
 
@@ -396,7 +396,7 @@ def EndorseConnections(browser):
         for counter in range(1,NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE):
             ScrollToBottomAndWaitForLoad(browser)
 
-        soup = BeautifulSoup(browser.page_source, "lxml")
+        soup = BeautifulSoup(browser.page_source, "html.parser")
         for a in soup.find_all('a', class_='mn-person-info__picture'):
             if VERBOSE:
                 print(a['href'])
