@@ -218,7 +218,7 @@ def ConnectWithUser(browser):
     browse: the selenium browser used to interact with the page.
     """
 
-    soup = BeautifulSoup(browser.page_source, "lxml")
+    soup = BeautifulSoup(browser.page_source, "html.parser")
     jobTitleMatches = False
 
     # I know not that efficient of a loop but BeautifulSoup and Selenium are
