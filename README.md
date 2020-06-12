@@ -13,14 +13,9 @@ This project is a modified and updated version of the awesome [helloitsim](https
 **Important:** make sure that you have your [Profile Viewing Setting](https://www.linkedin.com/settings/?trk=nav_account_sub_nav_settings) changed from 'Anonymous' to  'Public' so LinkedIn members can see that you have visited them and can visit your profile in return.
 You also must change your language setting to **English**.
 
-LinkedInBot was developed under [Pyhton 2.7](https://www.python.org/downloads).
+LinkedInBot was developed under [Python 3.8](https://www.python.org/downloads).
 
-Before you can run the bot, you will need to install a few Python dependencies.
-
-Note: Python 2.7.9 and later (on the python2 series), and Python 3.4 and later include pip by default, so you may have pip already. Otherwise, you can install [easy_install](https://pythonhosted.org/setuptools/easy_install.html) `sudo apt-get install python-setuptools` to install [pip](https://pypi.python.org/pypi/pip) `sudo easy_install pip`.
-
-- [BeautifulSoup4](https://pypi.python.org/pypi/beautifulsoup4), for parsing html: `pip install BeautifulSoup4`
-- [Selenium](http://www.seleniumhq.org/), for browser automation: `pip install Selenium`
+Before you can run the bot, you will need to install a few Python dependencies. Run `pip3 install -r requirements.txt` to install them.
 
 If you plan to use Firefox (or Iceweasel) you don't need anything more.
 
@@ -34,7 +29,7 @@ PhantomJS:
 If you want to built your own binaries, here is the [build instructions](http://phantomjs.org/build.html) for PhantomJS.
 
 ## Configuration
-Before you run the bot, edit the configuration portion of the script. This will include your account login information (email, password, etc.) and other logical values to make the bot more of your own. It's that simple!
+Before you run the bot, create a `.env` file with the configuration of the script. This will include your account login information (email, password, etc.) and other logical values to make the bot more of your own. It's that simple!
 
 ```python
 # Configurable Constants
@@ -52,7 +47,7 @@ VERBOSE = True
 ```
 
 ## Run
-Once you have installed the required dependencies and edited the `config` file, you can run the bot.
+Once you have installed the required dependencies, created the `.env` file with your data, you can run the bot.
 
 Make sure you are in the correct folder and run the following command: `python LinkedInBot.py`
 
