@@ -225,7 +225,7 @@ def ConnectWithUser(browser):
     # giving me a hard time finding the specifc h2 element that contain's user's job title
     for h2 in soup.find_all('h2'):
         for job in JOBS_TO_CONNECT_WITH:
-            if job in h2.getText():
+            if job.upper() in h2.getText().upper():
                 jobTitleMatches = True
                 break
 
