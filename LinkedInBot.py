@@ -2,8 +2,13 @@
 # -*- coding: utf-8 -*-
 # Author: Matt Flood
 
-import os, random, sys, time, urlparse
+import os
+import random
+import sys
+import time
+from urllib.parse import urlparse
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 from random import shuffle
 
@@ -16,8 +21,8 @@ load_dotenv(dotenv_path)
 
 
 # Configurable Constants
-EMAIL = os.getenv("USERNAME",'')
-PASSWORD = os.getenv("PASSWORD",'')
+EMAIL = os.getenv("EMAIL", '')
+PASSWORD = os.getenv("PASSWORD", '')
 VIEW_SPECIFIC_USERS = False
 SPECIFIC_USERS_TO_VIEW = ['CEO', 'CTO', 'Developer', 'HR', 'Recruiter']
 NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE = 5
@@ -40,23 +45,24 @@ def Launch():
         visitedUsersFile.close()
 
     # Browser choice
-    print 'Choose your browser:'
-    print '[1] Chrome'
-    print '[2] Firefox/Iceweasel'
-    print '[3] PhantomJS'
+    print('Choose your browser:')
+    print('[1] Chrome')
+    print('[2] Firefox/Iceweasel')
+    print('[3] PhantomJS')
 
     while True:
         try:
-            browserChoice = int(raw_input('Choice? '))
+            browserChoice = int(input('Choice? '))
         except ValueError:
-            print 'Invalid choice.',
+            print('Invalid choice.'),
         else:
-            if browserChoice not in [1,2,3]:
-                print 'Invalid choice.',
+            if browserChoice not in [1, 2, 3]:
+                print('Invalid choice.'),
             else:
                 break
 
     StartBrowser(browserChoice)
+
 
 def StartBrowser(browserChoice):
     """
@@ -65,15 +71,15 @@ def StartBrowser(browserChoice):
     """
 
     if browserChoice == 1:
-        print '\nLaunching Chrome'
-        browser = webdriver.Chrome()
+        print('\nLaunching Chrome')
+        browser = webdriver.Chrome(ChromeDriverManager().install())
 
     elif browserChoice == 2:
-        print '\nLaunching Firefox/Iceweasel'
+        print('\nLaunching Firefox/Iceweasel')
         browser = webdriver.Firefox()
 
     elif browserChoice == 3:
-        print '\nLaunching PhantomJS'
+        print('\nLaunching PhantomJS')
         browser = webdriver.PhantomJS()
 
     # Sign in
@@ -84,18 +90,18 @@ def StartBrowser(browserChoice):
     passElement.send_keys(PASSWORD)
     passElement.submit()
 
-    print 'Signing in...'
+    print('Signing in...')
     time.sleep(3)
 
-    soup = BeautifulSoup(browser.page_source, "lxml")
-    if soup.find('div', {'class':'alert error'}):
-        print 'Error! Please verify your username and password.'
+    soup = BeautifulSoup(browser.page_source, "html.parser")
+    if soup.find('div', {'class': 'alert error'}):
+        print('Error! Please verify your username and password.')
         browser.quit()
     elif browser.title == '403: Forbidden':
-        print 'LinkedIn is momentarily unavailable. Please wait a moment, then try again.'
+        print('LinkedIn is momentarily unavailable. Please wait a moment, then try again.')
         browser.quit()
     else:
-        print 'Success!\n'
+        print('Success!\n')
         LinkedInBot(browser)
 
 
@@ -114,7 +120,7 @@ def LinkedInBot(browser):
     if ENDORSE_CONNECTIONS:
         EndorseConnections(browser)
 
-    print 'At the my network page to scrape user urls..\n'
+    print('At the my network page to scrape user urls..\n')
 
     # Infinite loop
     while True:
@@ -125,18 +131,19 @@ def LinkedInBot(browser):
             NavigateToMyNetworkPage(browser)
             T += 1
 
-            if GetNewProfileURLS(BeautifulSoup(browser.page_source, "lxml"), profilesQueued):
+            if GetNewProfileURLS(BeautifulSoup(browser.page_source, "html.parser"), profilesQueued):
                 break
             else:
-                print '|',
+                print('|'),
                 time.sleep(random.uniform(5, 7))
 
-        soup = BeautifulSoup(browser.page_source, "lxml")
+        soup = BeautifulSoup(browser.page_source, "html.parser")
         profilesQueued = list(set(GetNewProfileURLS(soup, profilesQueued)))
 
         V += 1
-        print '\n\nGot our users to start viewing with!\n'
-        print browser.title.replace(' | LinkedIn', ''), ' visited. T:', T, '| V:', V, '| Q:', len(profilesQueued)
+        print('\n\nGot our users to start viewing with!\n')
+        print(browser.title.replace(' | LinkedIn', ''), ' visited. T:',
+              T, '| V:', V, '| Q:', len(profilesQueued))
 
         while profilesQueued:
 
@@ -152,47 +159,52 @@ def LinkedInBot(browser):
                     ConnectWithUser(browser)
 
             # Add the ID to the visitedUsersFile
-            with open('visitedUsers.txt', 'ab') as visitedUsersFile:
+            with open('visitedUsers.txt', 'a') as visitedUsersFile:
                 visitedUsersFile.write(str(profileID)+'\r\n')
             visitedUsersFile.close()
 
             # Get new profiles ID
             time.sleep(10)
-            soup = BeautifulSoup(browser.page_source, "lxml")
+            soup = BeautifulSoup(browser.page_source, "html.parser")
             profilesQueued.extend(GetNewProfileURLS(soup, profilesQueued))
             profilesQueued = list(set(profilesQueued))
 
-            browserTitle = (browser.title).encode('ascii', 'ignore').replace('  ',' ')
+            browserTitle = (browser.title).encode(
+                'ascii', 'ignore').replace(b'  ', b' ')
 
             # 403 error
             if browserTitle == '403: Forbidden':
                 error403Count += 1
-                print '\nLinkedIn is momentarily unavailable - Paused for', str(error403Count), 'hour(s)\n'
+                print('\nLinkedIn is momentarily unavailable - Paused for',
+                      str(error403Count), 'hour(s)\n')
                 time.sleep(3600*error403Count+(random.randrange(0, 10))*60)
-                timer = time.time() # Reset the timer
+                timer = time.time()  # Reset the timer
 
             # User out of network
             elif browserTitle == 'Profile | LinkedIn':
                 T += 1
                 error403Count = 0
-                print 'User not in your network. T:', T, '| V:', V, '| Q:', len(profilesQueued)
+                print('User not in your network. T:', T,
+                      '| V:', V, '| Q:', len(profilesQueued))
 
             # User in network
             else:
                 T += 1
                 V += 1
                 error403Count = 0
-                print browserTitle.replace(' | LinkedIn', ''), 'visited. T:', T, '| V:', V, '| Q:', len(profilesQueued)
+                print(browserTitle.replace(b' | LinkedIn', b''),
+                      'visited. T:', T, '| V:', V, '| Q:', len(profilesQueued))
 
             # Pause
-            if (T%1000==0) or time.time()-timer > 3600:
-                print '\nPaused for 1 hour\n'
+            if (T % 1000 == 0) or time.time()-timer > 3600:
+                print('\nPaused for 1 hour\n')
                 time.sleep(3600+(random.randrange(0, 10))*60)
-                timer = time.time() # Reset the timer
+                timer = time.time()  # Reset the timer
             else:
-                time.sleep(random.uniform(5, 7)) # Otherwise, sleep to make sure everything loads
+                # Otherwise, sleep to make sure everything loads
+                time.sleep(random.uniform(5, 7))
 
-        print '\nNo more profiles to visit. Everything restarts with the network page...\n'
+        print('\nNo more profiles to visit. Everything restarts with the network page...\n')
 
 
 def NavigateToMyNetworkPage(browser):
@@ -205,7 +217,7 @@ def NavigateToMyNetworkPage(browser):
     """
 
     browser.get('https://www.linkedin.com/mynetwork/')
-    for counter in range(1,NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE):
+    for counter in range(1, NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE):
         ScrollToBottomAndWaitForLoad(browser)
 
 
@@ -216,24 +228,27 @@ def ConnectWithUser(browser):
     browse: the selenium browser used to interact with the page.
     """
 
-    soup = BeautifulSoup(browser.page_source, "lxml")
+    soup = BeautifulSoup(browser.page_source, "html.parser")
     jobTitleMatches = False
 
     # I know not that efficient of a loop but BeautifulSoup and Selenium are
     # giving me a hard time finding the specifc h2 element that contain's user's job title
     for h2 in soup.find_all('h2'):
         for job in JOBS_TO_CONNECT_WITH:
-            if job in h2.getText():
+            if job.upper() in h2.getText().upper():
                 jobTitleMatches = True
                 break
 
     if jobTitleMatches:
         try:
             if VERBOSE:
-                print 'Sending the user an invitation to connect.'
-                browser.find_element_by_xpath('//button[@class="pv-s-profile-actions pv-s-profile-actions--connect ml2 artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]').click() #old class = connect primary top-card-action ember-view
+                print('Sending the user an invitation to connect.')
+                # old class = connect primary top-card-action ember-view
+                browser.find_element_by_xpath(
+                    '//button[@class="pv-s-profile-actions pv-s-profile-actions--connect ml2 artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]').click()
                 time.sleep(random.randrange(3))
-                browser.find_element_by_xpath('//button[@class="ml1 artdeco-button artdeco-button--3 artdeco-button--primary ember-view"]').click()
+                browser.find_element_by_xpath(
+                    '//button[@class="ml1 artdeco-button artdeco-button--3 artdeco-button--primary ember-view"]').click()
         except:
             pass
 
@@ -251,9 +266,12 @@ def GetNewProfileURLS(soup, profilesQueued):
     visitedUsersFile.close()
 
     profileURLS = []
-    profileURLS.extend(FindProfileURLsInNetworkPage(soup, profilesQueued, profileURLS, visitedUsers))
-    profileURLS.extend(FindProfileURLsInPeopleAlsoViewed(soup, profilesQueued, profileURLS, visitedUsers))
-    profileURLS.extend(FindProfileURLsInEither(soup, profilesQueued, profileURLS, visitedUsers))
+    profileURLS.extend(FindProfileURLsInNetworkPage(
+        soup, profilesQueued, profileURLS, visitedUsers))
+    profileURLS.extend(FindProfileURLsInPeopleAlsoViewed(
+        soup, profilesQueued, profileURLS, visitedUsers))
+    profileURLS.extend(FindProfileURLsInEither(
+        soup, profilesQueued, profileURLS, visitedUsers))
     profileURLS = list(set(profileURLS))
 
     return profileURLS
@@ -279,13 +297,13 @@ def FindProfileURLsInNetworkPage(soup, profilesQueued, profileURLS, visitedUsers
                         for occupation in SPECIFIC_USERS_TO_VIEW:
                             if occupation.lower() in span.text.lower():
                                 if VERBOSE:
-                                    print a['href']
+                                    print(a['href'])
                                 newProfileURLS.append(a['href'])
                                 break
 
                 else:
                     if VERBOSE:
-                        print a['href']
+                        print(a['href'])
                     newProfileURLS.append(a['href'])
     except:
         pass
@@ -313,13 +331,13 @@ def FindProfileURLsInPeopleAlsoViewed(soup, profilesQueued, profileURLS, visited
                         for occupation in SPECIFIC_USERS_TO_VIEW:
                             if occupation.lower() in div.text.lower():
                                 if VERBOSE:
-                                    print a['href']
+                                    print(a['href'])
                                 newProfileURLS.append(a['href'])
                                 break
 
                 else:
                     if VERBOSE:
-                        print a['href']
+                        print(a['href'])
                     newProfileURLS.append(a['href'])
     except:
         pass
@@ -350,13 +368,13 @@ def FindProfileURLsInEither(soup, profilesQueued, profileURLS, visitedUsers):
                             for occupatio in SPECIFIC_USERS_TO_VIEW:
                                 if occupation.lower() in div.text.lower():
                                     if VERBOSE:
-                                        print a['href']
+                                        print(a['href'])
                                     profileURLS.append(a['href'])
                                     break
 
                     else:
                         if VERBOSE:
-                            print a['href']
+                            print(a['href'])
                         profileURLS.append(a['href'])
     except:
         pass
@@ -385,22 +403,22 @@ def EndorseConnections(browser):
     browser:
     """
 
-    print "Gathering your connections url's to endorse their skills."
+    print("Gathering your connections url's to endorse their skills.")
     profileURLS = []
     browser.get('https://www.linkedin.com/mynetwork/invite-connect/connections/')
     time.sleep(3)
 
     try:
-        for counter in range(1,NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE):
+        for counter in range(1, NUM_LAZY_LOAD_ON_MY_NETWORK_PAGE):
             ScrollToBottomAndWaitForLoad(browser)
 
-        soup = BeautifulSoup(browser.page_source, "lxml")
+        soup = BeautifulSoup(browser.page_source, "html.parser")
         for a in soup.find_all('a', class_='mn-person-info__picture'):
             if VERBOSE:
-                print a['href']
+                print(a['href'])
             profileURLS.append(a['href'])
 
-        print "Endorsing your connection's skills."
+        print("Endorsing your connection's skills.")
 
         for url in profileURLS:
 
@@ -408,20 +426,20 @@ def EndorseConnections(browser):
             if RANDOMIZE_ENDORSING_CONNECTIONS:
                 endorseConnection = random.choice([True, False])
 
-            if  endorseConnection:
+            if endorseConnection:
                 fullURL = 'https://www.linkedin.com'+url
                 if VERBOSE:
-                    print 'Endorsing the connection '+fullURL
+                    print('Endorsing the connection '+fullURL)
 
                 browser.get(fullURL)
                 time.sleep(3)
                 for button in browser.find_elements_by_xpath('//button[@data-control-name="endorse"]'):
                     button.click()
     except:
-        print 'Exception occurred when endorsing your connections.'
+        print('Exception occurred when endorsing your connections.')
         pass
 
-    print ''
+    print('')
 
 
 def ScrollToBottomAndWaitForLoad(browser):
