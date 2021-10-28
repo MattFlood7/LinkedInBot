@@ -365,7 +365,7 @@ def FindProfileURLsInEither(soup, profilesQueued, profileURLS, visitedUsers):
 
                     if VIEW_SPECIFIC_USERS:
                         for div in a.find_all('div'):
-                            for occupatio in SPECIFIC_USERS_TO_VIEW:
+                            for occupation in SPECIFIC_USERS_TO_VIEW:
                                 if occupation.lower() in div.text.lower():
                                     if VERBOSE:
                                         print(a['href'])
