@@ -63,5 +63,24 @@ V: Number of profiles the bot actually visited (profiles you can access: rank 3 
 
 Q: Number of profiles in queue.
 
-## Enhancements
-Please feel free to message me or open an issue if you have an idea for an enhancement! Seems like people are starting to use this and I would like to improve it.
+## POTENTIAL ISSUES
+
+* 2 Factor Authentication
+	* Solution: Working on a setting to give more time to get it, if it is enabled you cannot use headless mode
+* Stuck on `-> Scraping User URLs on Network tab.`
+	* Solution: I have encountered this issue before and restarting the script usually works
+* LinkedIn Security Email
+	* You were sent a pin to make sure its really you, either enter the pin if you are not in headless mode or restart the bot.
+	* At this point it might be best to tread lightly, as your account could be flagged and being monitored. However I am not certain on that.
+
+## DISCLAIMER
+
+The use of bots and scrapers are mentioned [here](https://www.linkedin.com/help/linkedin/answer/56347/prohibited-software-and-extensions?lang=en).
+Use this bot at your own risk. 
+Just to push more knowledege a judge in California ruled that they cannot prohibit bots([article](https://www.bbc.com/news/technology-40932487)).
+
+## Note
+
+I have sparily modified this project over the past few years. Others have taken upon themselves to leverage this as a base and work off of it from here. As I learn more about other's work using this I will link their projects here:
+
+* [@SethRzeszutek's](https://github.com/SethRzeszutek) https://github.com/SethRzeszutek/LinkedIn-Bot
