@@ -19,7 +19,7 @@ Before you can run the bot, you will need to install a few Python dependencies. 
 
 If you plan to use Firefox (or Iceweasel) you don't need anything more.
 
-For Chrome, first get the [webdriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) then put it in the same folder than the bot if you are on Windows, or in the `/usr/bin` folder if you are on OS X.
+For Chrome, first get the [webdriver](https://sites.google.com/chromium.org/driver/downloads) then put it in the same folder than the bot if you are on Windows, or in the `/usr/bin` folder if you are on OS X.
 
 PhantomJS:
 - On Windows, download the binary from the [official website](http://phantomjs.org) and put it in the same folder than the bot.
